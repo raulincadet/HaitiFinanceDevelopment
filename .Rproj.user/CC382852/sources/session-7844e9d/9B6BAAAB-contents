@@ -71,14 +71,23 @@ library(plotly)
 df2$Years <- factor(df2$Years, levels = df2[["Years"]])
   
 fig <- plot_ly(data=df2, x = ~Years, y = ~`Total external debt stock (% of GDP)`, name = 'FDI, net inflows', type = 'scatter', mode = 'none', stackgroup = 'one', fillcolor = 'navy')
-fig <- fig %>% add_trace(y = ~`Foreign direct investment, net inflows (% of GDP)`, name = 'External debt', fillcolor = 'orangered')
-fig <- fig %>% add_trace(y = ~`Domestic credit to private sector (% of GDP)`, name = 'Domestic credit', fillcolor = 'steelblue')
-fig <- fig %>% add_trace(y = ~`Personal remittances, received (% of GDP)`, name = 'Remittances, received', fillcolor = 'green')
+fig <- fig %>% add_trace(y = ~`Foreign direct investment, net inflows (% of GDP)`, name = 'External debt', fillcolor = 'orange')
+fig <- fig %>% add_trace(y = ~`Domestic credit to private sector (% of GDP)`, name = 'Domestic credit', fillcolor = 'brown')
+fig <- fig %>% add_trace(y = ~`Personal remittances, received (% of GDP)`, name = 'Remittances, received', fillcolor = 'steelblue')
 fig <- fig %>% layout(#title = '',
                       xaxis = list(title = "",
                                    showgrid = FALSE),
                       yaxis = list(title = "% of GDP",
-                                   showgrid = FALSE))
+                                   showgrid = FALSE),
+                      showlegend=TRUE,
+                      legend = list(orientation = 'h'),
+                      annotations = 
+                        list(x = 1, y = -0.2, text = "Source: Realized by Raulin Cadet, with data from the World Development Indicators", 
+                             showarrow = F, xref='paper', yref='paper', 
+                             xanchor='right', yanchor='auto', xshift=0, yshift=0,
+                             font=list(size=11, color="gray"))
+                      
+                      )
 fig
 
 
