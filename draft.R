@@ -1,17 +1,17 @@
 library(tidyverse)
 df=readxl::read_excel('API_HTI_DS2_en_excel_v2_5738369.xls')
 variables=c(
-"Foreign direct investment, net inflows (BoP, current US$)",
-"External debt stocks, public and publicly guaranteed (PPG) (DOD, current US$)",
-"External debt stocks, private nonguaranteed (PNG) (DOD, current US$)",
-"Personal remittances, received (current US$)",
-"Personal remittances, paid (current US$)",
-#"Domestic credit provided by financial sector (% of GDP)"
-"Domestic credit to private sector (% of GDP)",
-"Foreign direct investment, net inflows (% of GDP)", # New investment inflows less disinvestment
-"Personal remittances, received (% of GDP)",
-"GDP (current US$)",
-
+  "Foreign direct investment, net inflows (BoP, current US$)",
+  "External debt stocks, public and publicly guaranteed (PPG) (DOD, current US$)",
+  "External debt stocks, private nonguaranteed (PNG) (DOD, current US$)",
+  "Personal remittances, received (current US$)",
+  "Personal remittances, paid (current US$)",
+  #"Domestic credit provided by financial sector (% of GDP)"
+  "Domestic credit to private sector (% of GDP)",
+  "Foreign direct investment, net inflows (% of GDP)", # New investment inflows less disinvestment
+  "Personal remittances, received (% of GDP)",
+  "GDP (current US$)",
+  
 )
 variables
 
@@ -51,26 +51,29 @@ df2%>%select(
   `Domestic credit to private sector (% of GDP)`,
   `Total external debt stock (% of GDP)`,
   `Tax les subsidies on products (% of GDP)`
-  )%>%
+)%>%
   ggplot(aes(x=Years))+
-  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Remittances'),size=1)+
-  geom_line(aes(y=`Domestic credit to private sector (% of GDP)`,colour="Domestic credit"),size=1)+
-  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="FDI"),size=1)+
- #geom_line(aes(y=`Private external debt stock (% of GDP)`),size=1)+
-  #geom_line(aes(y=`Public external debt stock (% of GDP)`),size=1)+
-  geom_line(aes(y=`Total external debt stock (% of GDP)`,colour="External debt"),size=1)+
-  geom_line(aes(y=`Tax les subsidies on products (% of GDP)`,colour="Tax"),size=1)+
-  scale_colour_manual("Indicators", 
-                      breaks = c("Remittances", "Domestic credit", "FDI","External debt",'Tax'),
-                      values = c("forestgreen", "navy", "orange","brown",'red')) +
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Personal remittances'),size=1)+
+  geom_line(aes(y=`Domestic credit to private sector (% of GDP)`,colour="Domestic credit to private sector"),size=1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Foreign direct investment"),size=1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Private external debt'),size=1)+
+  geom_line(aes(y=`Public external debt stock (% of GDP)`,colour='Public external debt'),size=1)+
+  #geom_line(aes(y=`Total external debt stock (% of GDP)`,colour="External debt"),size=1)+
+  geom_line(aes(y=`Tax les subsidies on products (% of GDP)`,colour="Taxes less subsidies"),size=1)+
   
-  theme(legend.position = "bottom")+ylab("% of GDP")+
-  theme_classic()
+  scale_colour_manual("", 
+                      breaks = c("Personal remittances", "Domestic credit to private sector", "Foreign direct investment",'Private external debt','Public external debt','Taxes less subsidies'),
+                      values = c("forestgreen", "navy", "orange",'steelblue',"brown",'magenta2')) +
+  
+  
+  theme_classic()+ theme(legend.position = "top")+ylab("% of GDP")+
+  guides(col = guide_legend(nrow = 3))+
+  labs(caption = 'Source: Realized by Raulin L. Cadet, with data from the \n World Development Indicators (WDI). Taxes less \n subsidies are related to products only.')
 
 ########################
 
 library(plotly)
-  
+
 df2$Years <- factor(df2$Years, levels = df2[["Years"]])
 fig <- fig %>% add_trace(y = ~`Total external debt stock (% of GDP)`, name = 'Tax', fillcolor = 'gray')
 fig <- plot_ly(data=df2, x = ~Years, y = ~`Tax les subsidies on products (% of GDP)`, name = 'FDI, net inflows', type = 'scatter', mode = 'none', stackgroup = 'one', fillcolor = 'navy')
@@ -78,19 +81,19 @@ fig <- fig %>% add_trace(y = ~`Foreign direct investment, net inflows (% of GDP)
 fig <- fig %>% add_trace(y = ~`Domestic credit to private sector (% of GDP)`, name = 'Domestic credit', fillcolor = 'brown')
 fig <- fig %>% add_trace(y = ~`Personal remittances, received (% of GDP)`, name = 'Remittances, received', fillcolor = 'steelblue')
 fig <- fig %>% layout(#title = '',
-                      xaxis = list(title = "",
-                                   showgrid = FALSE),
-                      yaxis = list(title = "% of GDP",
-                                   showgrid = FALSE),
-                      showlegend=TRUE,
-                      legend = list(orientation = 'h'),
-                      annotations = 
-                        list(x = 1, y = -0.2, text = "Source: Realized by Raulin Cadet, with data from the World Development Indicators", 
-                             showarrow = F, xref='paper', yref='paper', 
-                             xanchor='right', yanchor='auto', xshift=0, yshift=0,
-                             font=list(size=11, color="gray"))
-                      
-                      )
+  xaxis = list(title = "",
+               showgrid = FALSE),
+  yaxis = list(title = "% of GDP",
+               showgrid = FALSE),
+  showlegend=TRUE,
+  legend = list(orientation = 'h'),
+  annotations = 
+    list(x = 1, y = -0.2, text = "Source: Realized by Raulin Cadet, with data from the World Development Indicators", 
+         showarrow = F, xref='paper', yref='paper', 
+         xanchor='right', yanchor='auto', xshift=0, yshift=0,
+         font=list(size=11, color="gray"))
+  
+)
 fig
 
 
