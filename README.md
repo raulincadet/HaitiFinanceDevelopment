@@ -3,11 +3,11 @@
 
 This project use data provided by the World Bank in the tables of World Development Indicators (WDI), to realized two graphics, one with texts in English and a similar one with texts in French, to visualize the Haitian economy's financing trends.
 
-![](FinancingHaiti.png)
+![](FinancingHaiti_v20230828.png)
 
 The same graphics, with texts in French.
 
-![](FinancementHaiti.png)
+![](FinancementHaiti_v20230828.png)
 
 ### Packages used
 Three packages have been used. However, since they all are included in [tidyverse](https://www.tidyverse.org/), this last package have been loaded to use the three mentioned below.
@@ -17,7 +17,7 @@ Three packages have been used. However, since they all are included in [tidyvers
 * [ggplot2](https://ggplot2.tidyverse.org/)
 
 ### Steps
-* Data from the WDI are saved in a file (xls format);
+* Data from the WDI of the World Bank, the Haitian Central Bank (BRH) and the Haitian Institute of Statistics (IHSI) are saved in two files (xls and xlsx format respectively);
 * Data have been imported to an R object, a data frame;
 * Data wrangling is realized to:
   - structure the dataset to have one variable by column, 
