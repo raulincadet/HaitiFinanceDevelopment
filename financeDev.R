@@ -1,19 +1,7 @@
 library(tidyverse)
-df=readxl::read_excel('API_HTI_DS2_en_excel_v2_5738369.xls')
-variables=c(
-"Foreign direct investment, net inflows (BoP, current US$)",
-"External debt stocks, public and publicly guaranteed (PPG) (DOD, current US$)",
-"External debt stocks, private nonguaranteed (PNG) (DOD, current US$)",
-"Personal remittances, received (current US$)",
-"Personal remittances, paid (current US$)",
-#"Domestic credit provided by financial sector (% of GDP)"
-"Domestic credit to private sector (% of GDP)",
-"Foreign direct investment, net inflows (% of GDP)", # New investment inflows less disinvestment
-"Personal remittances, received (% of GDP)",
-"GDP (current US$)",
 
-)
-variables
+df=readxl::read_excel('API_HTI_DS2_en_excel_v2_5738369.xls')
+
 
 # Structured dataset 
 df=df[3:dim(df)[1],3:dim(df)[2]]   
@@ -33,7 +21,7 @@ for (i in 1:length(colnames(df))) {
   y[[i]]=as.numeric(unlist(df[colnames(df)[i]]))  # convert all columns to numeric data
 }
 
-df2=data.frame(y)             # create a new data frame where all data are numeric
+df2<-data.frame(y)             # create a new data frame where all data are numeric
 colnames(df2)=colnames(df)    # provide the same columns names to df2 as it is for df
 
 # Create new variables
@@ -41,8 +29,43 @@ df2["Public external debt stock (% of GDP)"]=(df2["External debt stocks, public 
 df2["Private external debt stock (% of GDP)"]=(df2["External debt stocks, private nonguaranteed (PNG) (DOD, current US$)"]/df2["GDP (current US$)"])*100
 df2['Total external debt stock (% of GDP)']=(df2["External debt stocks, total (DOD, current US$)"]/df2["GDP (current US$)"])*100
 df2['Tax les subsidies on products (% of GDP)']=(df2["Taxes less subsidies on products (current US$)"]/df2["GDP (current US$)"])*100
-colnames(df2)[1]='Years'
-df2%>%select(
+df2['Net official development assistance received (% of GDP)']=(df2["Net official development assistance received (current US$)"]/df2["GDP (current US$)"])*100
+
+colnames(df2)[1]<-'Years'
+
+####################################
+###### Other Data to import ########
+dcred<-readxl::read_excel('DataBRH.xlsx',sheet='BRH')
+dcred<-dcred%>%filter(`Years` %in% c(2000:2020))    # consider data from 2000 to 2020
+dcred<-dcred[,2:dim(dcred)[2]]
+dcred['Years']<-2000:2020
+
+dinv<-readxl::read_excel('DataBRH.xlsx',sheet='IHSI')
+dinv<-data.frame(t(dinv))    # transpose dinv so that each column have a variable
+col<-dinv[1,]
+dinv<-data.frame(dinv[2:(dim(dinv)[1]),c(5,6)]) # remove the first row that contains columns names
+colnames(dinv)<-col[5:6]
+
+#######
+str(dinv)  # data are not numeric wherease they should.
+# Data will be converted to numeric type
+z=NULL
+for (i in 1:length(colnames(dinv))) {
+  z[[i]]=as.numeric(unlist(dinv[colnames(dinv)[i]]))  # convert all columns to numeric data
+}
+dinv=data.frame(z)
+colnames(dinv)=col[5:6]
+dinv['Years']=2000:2020
+
+df3<-merge(df2,dcred,on='Years')
+df3<-merge(df3,dinv,on='Years')
+rownames(df3)<-2000:2020
+
+#################################
+
+
+
+df3=df3%>%select(
   Years,
   `Public external debt stock (% of GDP)`,
   `Private external debt stock (% of GDP)`,
@@ -50,75 +73,66 @@ df2%>%select(
   `Personal remittances, received (% of GDP)`,
   `Domestic credit to private sector (% of GDP)`,
   `Total external debt stock (% of GDP)`,
-  `Tax les subsidies on products (% of GDP)`
-  )%>%
-  ggplot(aes(x=Years))+
-  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Remittances'),size=1)+
-  geom_line(aes(y=`Domestic credit to private sector (% of GDP)`,colour="Domestic credit"),size=1)+
-  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="FDI"),size=1)+
- #geom_line(aes(y=`Private external debt stock (% of GDP)`),size=1)+
-  #geom_line(aes(y=`Public external debt stock (% of GDP)`),size=1)+
-  geom_line(aes(y=`Total external debt stock (% of GDP)`,colour="External debt"),size=1)+
-  geom_line(aes(y=`Tax les subsidies on products (% of GDP)`,colour="Tax"),size=1)+
-  scale_colour_manual("Indicators", 
-                      breaks = c("Remittances", "Domestic credit", "FDI","External debt",'Tax'),
-                      values = c("forestgreen", "navy", "orange","brown",'red')) +
-  
-  theme(legend.position = "bottom")+ylab("% of GDP")+
-  theme_classic()
-
-########################
-
-library(plotly)
-  
-df2$Years <- factor(df2$Years, levels = df2[["Years"]])
-fig <- fig %>% add_trace(y = ~`Total external debt stock (% of GDP)`, name = 'Tax', fillcolor = 'gray')
-fig <- plot_ly(data=df2, x = ~Years, y = ~`Tax les subsidies on products (% of GDP)`, name = 'FDI, net inflows', type = 'scatter', mode = 'none', stackgroup = 'one', fillcolor = 'navy')
-fig <- fig %>% add_trace(y = ~`Foreign direct investment, net inflows (% of GDP)`, name = 'External debt', fillcolor = 'orange')
-fig <- fig %>% add_trace(y = ~`Domestic credit to private sector (% of GDP)`, name = 'Domestic credit', fillcolor = 'brown')
-fig <- fig %>% add_trace(y = ~`Personal remittances, received (% of GDP)`, name = 'Remittances, received', fillcolor = 'steelblue')
-fig <- fig %>% layout(#title = '',
-                      xaxis = list(title = "",
-                                   showgrid = FALSE),
-                      yaxis = list(title = "% of GDP",
-                                   showgrid = FALSE),
-                      showlegend=TRUE,
-                      legend = list(orientation = 'h'),
-                      annotations = 
-                        list(x = 1, y = -0.2, text = "Source: Realized by Raulin Cadet, with data from the World Development Indicators", 
-                             showarrow = F, xref='paper', yref='paper', 
-                             xanchor='right', yanchor='auto', xshift=0, yshift=0,
-                             font=list(size=11, color="gray"))
-                      
-                      )
-fig
-
-
-######################
-
-
-#########################################################
-###### Create a new data frame with grouped data ########
-
-Indicators=list(unlist(
-  df2%>%select(
-    # `Public external debt stock (% of GDP)`,
-    #`Private external debt stock (% of GDP)`,
-    `Foreign direct investment, net inflows (% of GDP)`,
-    `Personal remittances, received (% of GDP)`,
-    `Domestic credit to private sector (% of GDP)`,
-    `Total external debt stock (% of GDP)`
+  `Tax les subsidies on products (% of GDP)`,
+  `Net official development assistance received (% of GDP)`,
+  `Net domestic credit to public sector (% of GDP)`,
+  `Investissement privé (% du PIB)`,
+  `Investissement publique (% du PIB)`,
   )
-))
 
-df3=data.frame(Indicators);colnames(df3)="Values"
-df3['Indicators']=c(
-  #rep('Public external debt',dim(df2)[1]),
-  #                 rep('Private external debt',dim(df2)[1]),
-  rep('FDI, net inflows',dim(df2)[1]),
-  rep('Remittances received',dim(df2)[1]),
-  rep('Domestic credit',dim(df2)[1]),
-  rep('Total external debt',dim(df2)[1])
-)
-df3['Years']=rep(2000:2020,4)
-rownames(df3)=1:dim(df3)[1]
+df3%>%
+  ggplot(aes(x=Years))+
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Personal remittances (b)'),size=1.1)+
+  geom_line(aes(y=`Domestic credit to private sector (% of GDP)`,colour="Domestic credit to private sector (b)"),size=1.1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Foreign direct investment (b)"),size=1.1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Private external debt (b)'),size=1.1)+
+  geom_line(aes(y=`Public external debt stock (% of GDP)`,colour='Public external debt (b)' ),size=1.1)+
+  #geom_line(aes(y=`Total external debt stock (% of GDP)`,colour="External debt (b)"),size=1)+
+  geom_line(aes(y=`Tax les subsidies on products (% of GDP)`,colour="Taxes less subsidies (b)"),size=1.1)+
+  geom_line(aes(y=`Net official development assistance received (% of GDP)`,colour="Net development assistance (b)"),size=1.1)+
+  geom_line(aes(y=`Net domestic credit to public sector (% of GDP)`,colour="Net public domestic debt (a)"),size=1.1)+
+  geom_line(aes(y=`Investissement privé (% du PIB)`,colour="Domestic private investment (a)"),size=1.1)+
+  geom_line(aes(y=`Investissement publique (% du PIB)`,colour="Domestic public investment (a)"),size=1.1)+
+  
+  scale_colour_manual("", 
+                      breaks = c('Net public domestic debt (a)', 'Domestic private investment (a)','Domestic public investment (a)','Private external debt (b)','Public external debt (b)', "Domestic credit to private sector (b)","Personal remittances (b)", "Foreign direct investment (b)",
+                                 'Taxes less subsidies (b)','Net development assistance (b)'),
+                                 
+                      values = c("gray1", "#CC79A7","greenyellow","navy",'red',"forestgreen", "#0072B2",'brown','yellow','orange')) +
+  ggtitle("Financing Trends in Haiti")+
+
+  theme_classic()+ theme(legend.position = "top")+ylab("% of GDP")+
+  guides(col = guide_legend(nrow = 4))+
+  labs(caption = 'Source: Realized by Raulin L. Cadet, with: (a) data from BRH and IHSI; (b) data from the World Bank.Taxes less subsidies \n are related to products only. Domestic private investment is estimated: Domestic investment minus Domestic public investment.')
+
+#######################################################
+######## The same graphics with texts in French #######
+df3%>%
+  ggplot(aes(x=Years))+
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Transferts de fonds (b)'),size=1.1)+
+  geom_line(aes(y=`Domestic credit to private sector (% of GDP)`,colour="Crédit intérieur au secteur privé (b)"),size=1.1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Investissement direct étranger (b)"),size=1.1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Dette extérieure privée (b)'),size=1.1)+
+  geom_line(aes(y=`Public external debt stock (% of GDP)`,colour='Dette extérieure publique (b)' ),size=1.1)+
+  #geom_line(aes(y=`Total external debt stock (% of GDP)`,colour="External debt (b)"),size=1)+
+  geom_line(aes(y=`Tax les subsidies on products (% of GDP)`,colour="Taxes moins subventions (b)"),size=1.1)+
+  geom_line(aes(y=`Net official development assistance received (% of GDP)`,colour="Aide (nette) au développement (b)"),size=1.1)+
+  geom_line(aes(y=`Net domestic credit to public sector (% of GDP)`,colour="Dette (nette) publique intérieure (a)"),size=1.1)+
+  geom_line(aes(y=`Investissement privé (% du PIB)`,colour="Investissement intérieur privé (a)"),size=1.1)+
+  geom_line(aes(y=`Investissement publique (% du PIB)`,colour="Investissement intérieur public (a)"),size=1.1)+
+  
+  scale_colour_manual("", 
+                      breaks = c('Dette (nette) publique intérieure (a)', 'Investissement intérieur privé (a)','Investissement intérieur public (a)','Dette extérieure privée (b)','Dette extérieure publique (b)', 
+                                 "Crédit intérieur au secteur privé (b)","Transferts de fonds (b)", "Investissement direct étranger (b)",
+                                 'Taxes moins subventions (b)','Aide (nette) au développement (b)'),
+                      
+                      values = c("gray1", "#CC79A7","greenyellow","navy",'red',"forestgreen", "#0072B2",'brown','yellow','orange')) +
+  ggtitle("Tendances du Financement de l'Economie Haïtienne")+
+  
+  theme_classic()+ theme(legend.position = "top")+ylab("% du PIB")+xlab('Années')+
+  guides(col = guide_legend(nrow = 4))+
+  labs(caption = "Source: Realisé par Raulin L. Cadet, avec: (a) les données de la BRH et de l'IHSI; (b) les données de la Banque Mondiale.\n Les taxes moins les subventions concernent uniquement les produits. L'investissement intérieur privé est \n estimé comme suit: investissement intérieur moins investissement intérieur public.")
+
+
+
+
