@@ -1,5 +1,6 @@
 library(tidyverse)
 
+
 df=readxl::read_excel('API_HTI_DS2_en_excel_v2_5738369.xls')
 
 
@@ -16,12 +17,13 @@ df=df%>%filter(`Indicator Name` %in% c(2000:2020))
 # convert all columns to numeric data
 str(df) # data types are characters wherease they should be numeric
 
+# Convert data type to numeric
 y=NULL
 for (i in 1:length(colnames(df))) {
   y[[i]]=as.numeric(unlist(df[colnames(df)[i]]))  # convert all columns to numeric data
 }
 
-df2<-data.frame(y)             # create a new data frame where all data are numeric
+df2<-data.frame(y)            # create a new data frame where all data are numeric
 colnames(df2)=colnames(df)    # provide the same columns names to df2 as it is for df
 
 # Create new variables
@@ -134,5 +136,89 @@ df3%>%
   labs(caption = "Source: Realisé par Raulin L. Cadet, avec: (a) les données de la BRH et de l'IHSI; (b) les données de la Banque Mondiale.\n Les taxes moins les subventions concernent uniquement les produits. L'investissement intérieur privé est \n estimé comme suit: investissement intérieur moins investissement intérieur public.")
 
 
+#################################################
+#### Private External Financing in Haiti ########
+
+df3%>%
+  ggplot(aes(x=Years))+
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Transferts de fonds'),size=1.1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Investissement direct étranger"),size=1.1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Dette extérieure privée'),size=1.1)+
+  
+  scale_colour_manual("", 
+                      breaks = c('Dette extérieure privée', 
+                                 "Transferts de fonds", "Investissement direct étranger"),
+                      values = c("brown","orange","navy",'forestgreen','red')) +
+  ggtitle("Tendances du Financement Privé Externe de l'Economie Haïtienne")+
+  theme_classic()+ theme(legend.position = "top")+ylab("% du PIB")+xlab('Années')+
+  guides(col = guide_legend(nrow = 1))+
+  labs(caption = "Source: Realisé par Raulin L. Cadet, avec les données de la Banque Mondiale.")
 
 
+
+######################################################################
+##### Add points to indicate max and min points of the variables #####
+
+max_remit=max(df3$`Personal remittances, received (% of GDP)`)
+max_fdi=max(df3$`Foreign direct investment, net inflows (% of GDP)`)
+max_priv=max(df3$`Private external debt stock (% of GDP)`)
+
+min_remit=min(df3$`Personal remittances, received (% of GDP)`)
+min_fdi=min(df3$`Foreign direct investment, net inflows (% of GDP)`)
+min_priv=min(df3$`Private external debt stock (% of GDP)`)
+
+df3%>%
+  ggplot(aes(x=Years))+
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Transferts de fonds'),size=1.1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Investissement direct étranger"),size=1.1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Dette extérieure privée'),size=1.1)+
+  geom_point(x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years))),
+             y=max_remit,shape=21,size=3.5,fill='forestgreen')+
+  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))-0.6, y=1+max_remit, label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))),
+           color="black",angle=15)+
+  geom_point(x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years))),
+             y=max_fdi,shape=21,size=3.5,fill='forestgreen')+
+  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))-1, y=1+max_fdi, 
+           label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))),
+           color="black",angle=25)+
+  
+  scale_colour_manual("", 
+                      breaks = c('Dette extérieure privée', 
+                                 "Transferts de fonds", "Investissement direct étranger"),
+                      values = c("brown","orange","navy",'forestgreen','red')) +
+  ggtitle("Tendances du Financement Privé Externe de l'Economie Haïtienne")+
+  theme_classic()+ theme(legend.position = "top")+ylab("% du PIB")+xlab('Années')+
+  guides(col = guide_legend(nrow = 1))+
+  labs(caption = "Source: Realisé par Raulin L. Cadet, avec les données de la Banque Mondiale.")
+
+
+############################################
+####### Add Events to the graphic #########
+
+df3%>%
+  ggplot(aes(x=Years))+
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Transferts de fonds'),size=1.1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Investissement direct étranger"),size=1.1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Dette extérieure privée'),size=1.1)+
+  geom_point(x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years))),
+             y=max_remit,shape=21,size=3.5,fill='forestgreen')+
+  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))-0.6, y=1+max_remit, label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))),
+           color="black",angle=15)+
+  geom_point(x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years))),
+             y=max_fdi,shape=21,size=3.5,fill='forestgreen')+
+  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))-1, y=1+max_fdi, 
+           label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))),
+           color="black",angle=25)+
+  
+  scale_colour_manual("", 
+                      breaks = c('Dette extérieure privée', 
+                                 "Transferts de fonds", "Investissement direct étranger"),
+                      values = c("brown","orange","navy",'forestgreen','red')) +
+  ggtitle("Tendances du Financement Privé Externe de l'Economie Haïtienne")+
+  geom_vline(xintercept=2010, linetype='dashed', color='red', size=1)+
+  annotate(geom='text',x=2010-0.5,y=18,label='Tremblement de terre',angle=90)+
+  geom_vline(xintercept=2018, linetype='dashed', color='red', size=1)+
+  annotate(geom='text',x=2018-0.5,y=14,label='Premiers Pays-lock - 2018',angle=90)+
+  theme_classic()+ theme(legend.position = "top")+ylab("% du PIB")+xlab('Années')+
+  guides(col = guide_legend(nrow = 1))+
+  labs(caption = "Source: Realisé par Raulin L. Cadet, avec les données de la Banque Mondiale.")

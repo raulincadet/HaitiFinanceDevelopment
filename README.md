@@ -9,6 +9,10 @@ The same graphics, with texts in French.
 
 ![](FinancementHaiti_v20230828.png)
 
+Private financing Haiti
+
+![](FinancementPrive3.png)
+
 ### Packages used
 Three packages have been used. However, since they all are included in [tidyverse](https://www.tidyverse.org/), this last package have been loaded to use the three mentioned below.
 
