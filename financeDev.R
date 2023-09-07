@@ -174,8 +174,8 @@ df3%>%
   geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Dette extérieure privée'),size=1.1)+
   geom_point(x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years))),
              y=max_remit,shape=21,size=3.5,fill='forestgreen')+
-  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))-0.6, y=1+max_remit, label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))),
-           color="black",angle=15)+
+  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))-0.6, y=1.65+max_remit, label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))),
+           color="black")+
   geom_point(x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years))),
              y=max_fdi,shape=21,size=3.5,fill='forestgreen')+
   annotate(geom="text", x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))-1, y=1+max_fdi, 
@@ -197,28 +197,28 @@ df3%>%
 
 df3%>%
   ggplot(aes(x=Years))+
-  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Transferts de fonds'),size=1.1)+
-  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Investissement direct étranger"),size=1.1)+
-  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Dette extérieure privée'),size=1.1)+
+  geom_line(aes(y=`Personal remittances, received (% of GDP)`,colour='Personal remittances'),size=1.1)+
+  geom_line(aes(y=`Foreign direct investment, net inflows (% of GDP)`,colour="Foreign direct investment"),size=1.1)+
+  geom_line(aes(y=`Private external debt stock (% of GDP)`,colour='Private external debt'),size=1.1)+
   geom_point(x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years))),
              y=max_remit,shape=21,size=3.5,fill='forestgreen')+
-  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))-0.6, y=1+max_remit, label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))),
-           color="black",angle=15)+
+  annotate(geom="text", x=as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))-0.6, y=1.65+max_remit, label=paste("Max value \n year ",as.numeric(c(df3%>%filter(`Personal remittances, received (% of GDP)`==max_remit)%>%select(Years)))),
+           color="black")+
   geom_point(x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years))),
              y=max_fdi,shape=21,size=3.5,fill='forestgreen')+
   annotate(geom="text", x=as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))-1, y=1+max_fdi, 
-           label=paste("Valeur Max \n année ",as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))),
+           label=paste("Max value \n year ",as.numeric(c(df3%>%filter(`Foreign direct investment, net inflows (% of GDP)`==max_fdi)%>%select(Years)))),
            color="black",angle=25)+
   
   scale_colour_manual("", 
-                      breaks = c('Dette extérieure privée', 
-                                 "Transferts de fonds", "Investissement direct étranger"),
+                      breaks = c('Private external debt', 
+                                 "Personal remittances", "Foreign direct investment"),
                       values = c("brown","orange","navy",'forestgreen','red')) +
-  ggtitle("Tendances du Financement Privé Externe de l'Economie Haïtienne")+
+  ggtitle("Trends in External Private Financing of the Haitian Economy")+
   geom_vline(xintercept=2010, linetype='dashed', color='red', size=1)+
-  annotate(geom='text',x=2010-0.5,y=18,label='Tremblement de terre',angle=90)+
+  annotate(geom='text',x=2010-0.5,y=18,label='Hearthquake',angle=90)+
   geom_vline(xintercept=2018, linetype='dashed', color='red', size=1)+
-  annotate(geom='text',x=2018-0.5,y=14,label='Premiers Pays-lock - 2018',angle=90)+
+  annotate(geom='text',x=2018-0.5,y=14,label='First political confinements - 2018',angle=90)+
   theme_classic()+ theme(legend.position = "top")+ylab("% du PIB")+xlab('Années')+
   guides(col = guide_legend(nrow = 1))+
-  labs(caption = "Source: Realisé par Raulin L. Cadet, avec les données de la Banque Mondiale.")
+  labs(caption = "Created by Raulin L. Cadet, using World Bank data.")
