@@ -11,7 +11,7 @@ The same graphics, with texts in French.
 
 Private financing Haiti
 
-![](FinancementPrive3.png)
+![](FinancingPrivate.png)
 
 ### Packages used
 Three packages have been used. However, since they all are included in [tidyverse](https://www.tidyverse.org/), this last package have been loaded to use the three mentioned below.
